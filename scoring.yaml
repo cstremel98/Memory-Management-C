@@ -1,0 +1,73 @@
+Functions:
+  get_header:
+    value: 20
+    tests:
+      - get_header
+      - RESERVE_get_header_large_offset
+      - RESERVE_get_header_different_sizes
+
+  coalesce_nodes:
+    value: 15
+    tests:
+      - coalesce_nodes__coalesce_first
+      - coalesce_nodes__coalesce_last
+      - coalesce_nodes__check_null
+      - coalesce_nodes__check_order
+      - coalesce_nodes__check_free
+      - RESERVE_coalesce_nodes_non_adjacent
+      - RESERVE_coalesce_nodes_same_node
+      - RESERVE_coalesce_nodes_unusual_sizes
+      - RESERVE_coalesce_nodes_large_sizes
+
+  find_first_free_chunk:
+    value: 20
+    tests:
+      - find_free_chunk__first_fit_0bytes
+      - find_free_chunk__first_fit_1bytes
+      - find_free_chunk__first_fit_1bytes_notfree
+      - find_free_chunk__first_fit_2bytes
+      - RESERVE_find_free_chunk_all_allocated
+      - RESERVE_find_free_chunk_exact_size_multiple
+      - RESERVE_find_free_chunk_worst_fit_ties
+      - RESERVE_find_free_chunk_zero_size_request
+      - RESERVE_find_free_chunk_large_request
+
+  split_node:
+    value: 25
+    tests:
+      - split_node__same_size
+      - split_node__too_small_to_split
+      - split_node__big_enough_to_split1
+      - split_node__big_enough_to_split2
+      - RESERVE_split_node_exactly_header_size
+      - RESERVE_split_node_large_allocation
+      - RESERVE_split_node_one_byte_too_small
+      - RESERVE_split_node_multiple_splits
+
+Alloc:
+  mem_alloc:
+    value: 10
+    tests:
+      - test_allocation_basic
+      - test_allocationfree_placement
+      - test_allocation_withsplits
+      - RESERVE_mem_alloc_fragmentation
+      - RESERVE_mem_alloc_repeated_small
+      - RESERVE_mem_alloc_alternating_sizes
+      - RESERVE_mem_alloc_after_destroy
+
+Free:
+  mem_free:
+    value: 10
+    tests:
+      - test_free_basic
+      - test_free_coalescing_case1
+      - test_free_coalescing_case2
+      - test_free_coalescing_case3
+      - test_free_coalescing_chains_fwd
+      - test_free_coalescing_chains_bwd
+      - RESERVE_mem_free_coalescing_complex
+      - RESERVE_mem_free_out_of_bounds_high
+      - RESERVE_mem_free_out_of_bounds_low
+      - RESERVE_mem_free_coalescing_all
+      - RESERVE_mem_free_mixed_order
