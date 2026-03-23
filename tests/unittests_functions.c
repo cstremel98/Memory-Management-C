@@ -735,7 +735,6 @@ Test(Functions, split_node__big_enough_to_split2) {
   free(memory);
 }
 
-/*
 Test(Functions, add_to_free_list__no_free_list) {
   // Note: Although we init, this is a bit of a hack since we aren't actually putting things in the arena
   init(sizeof(node_t));
@@ -796,6 +795,7 @@ Test(Functions, add_to_free_list__free_list_head) {
   cr_assert(_free_list == node0);
 }
 
+/*
 Test(Functions, add_to_free_list__free_list_tail) {
   // Note: Although we init, this is a bit of a hack since we aren't actually putting things in the arena
   init(2*sizeof(node_t));

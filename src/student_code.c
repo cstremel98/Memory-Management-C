@@ -188,11 +188,10 @@ node_t* split_node(node_t* node_to_allocate, size_t size) {
 		new_node->bwd = node_to_allocate->bwd;
 		new_node->is_free = true;
 
-		node_to_allocate->size = node_to_allocate->size - size - sizeof(node_t);
+		node_to_allocate->size = size;
 		node_to_allocate->is_free = false;
 		node_to_allocate->fwd = NULL;
 		node_to_allocate->bwd = NULL;
-
 		
 		return new_node;
 		
@@ -243,12 +242,9 @@ void add_to_free_list(node_t* newly_freed_node) {
 		return;
 	}
 
-	newly_freed_node->is_free = true;
-
 	node_t *curr = _free_list;
 
 	if(_free_list_order == ORDER_BY_ADDRESS) {
-
 		
 		if(_free_list == NULL) {
 			newly_freed_node->bwd = NULL;
