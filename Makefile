@@ -39,7 +39,7 @@ bin/%.o: src/%.c $(HEADERS) $(TEST)
 
 # Rule to run the grader
 grade:
-	cd ../../ && python scripts/grader.py --pa $(notdir $(CURDIR))
+	cd ../../ && python3 scripts/grader.py --pa $(notdir $(CURDIR))
 
 # Clean rule to remove object files and the executable
 clean:

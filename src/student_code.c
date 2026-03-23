@@ -119,25 +119,110 @@ void* get_arena_start() {
 
 
 node_t* find_free_chunk(size_t size) {
-  // todo
-  return NULL; // placeholder value
+	if (_free_list == NULL) {
+		return NULL;
+	}	
+
+	node_t* new_chunk = _free_list;	
+	
+	if(_allocation_strategy == BEST_FIT) {
+		node_t* small = NULL;
+
+		while(new_chunk != NULL) {
+			if(new_chunk->is_free && new_chunk->size >= size) {
+				if(small == NULL || new_chunk->size < small->size) {
+					small = new_chunk;
+				}
+			}
+			new_chunk = new_chunk->fwd;
+		}
+		
+		return small;
+	}
+	
+	if(_allocation_strategy == WORST_FIT) {
+		node_t* big = NULL;
+
+		while(new_chunk != NULL) {
+			if(new_chunk->is_free && new_chunk->size >= size) {
+				if(big == NULL || new_chunk->size > big->size) {
+					big = new_chunk;
+				}
+			}
+			new_chunk = new_chunk->fwd;
+		}
+
+		return big;
+	}
+
+	while (new_chunk != NULL) {
+		
+		if (new_chunk->is_free && new_chunk->size >= size) {
+				return new_chunk;
+		}
+
+		new_chunk = new_chunk->fwd;
+	}
+
+	return NULL;
 }
 
 node_t* split_node(node_t* node_to_allocate, size_t size) {
-  
-  // todo
-  return NULL; // placeholder value
+	if(node_to_allocate == NULL) {
+		return NULL;
+	}
+
+	//Same size
+	if(node_to_allocate->size == size) {
+		node_to_allocate->is_free = false;
+		return node_to_allocate;
+	} 
+
+	//Big enough
+	if(node_to_allocate->size >= size + sizeof(node_t)) {
+		node_t* new_node = (node_t*)((char*)node_to_allocate
+                          + sizeof(node_t) + size);
+
+		new_node->size = node_to_allocate->size - size - sizeof(node_t);
+		new_node->fwd = node_to_allocate->fwd;
+		new_node->bwd = node_to_allocate->bwd;
+		new_node->is_free = true;
+
+		node_to_allocate->size = node_to_allocate->size - size - sizeof(node_t);
+		node_to_allocate->is_free = false;
+		node_to_allocate->fwd = NULL;
+		node_to_allocate->bwd = NULL;
+
+		
+		return new_node;
+		
+		//Too small
+	} else {
+		node_to_allocate->is_free = false;
+		return node_to_allocate;
+	}
+
 }
 
 node_t* get_header(void* ptr) {
-  // todo 
-  return NULL; // placeholder value
+	return (void*)ptr - sizeof(node_t);
 }
 
 void coalesce_nodes(node_t* front, node_t* back) {
-  
-  // todo
-  
+	if ( (front == NULL || back == NULL) || (back != front->fwd) ) {
+		statusno = ERR_BAD_ARGUMENTS;
+		return;
+	} else if (front->is_free == false || back->is_free == false) {
+		statusno = ERR_CALL_FAILED;
+		return;
+	}
+
+	front->size += sizeof(node_t);
+	front->fwd = back->fwd;
+
+	if(back->fwd != NULL) {
+		back->fwd->bwd = front;
+	}
 }
 
 
@@ -154,9 +239,83 @@ void mem_free(void *ptr){
 }
 
 void add_to_free_list(node_t* newly_freed_node) {
-  
-  // todo
-  
+	if(newly_freed_node == NULL) {
+		return;
+	}
+
+	newly_freed_node->is_free = true;
+
+	node_t *curr = _free_list;
+
+	if(_free_list_order == ORDER_BY_ADDRESS) {
+
+		
+		if(_free_list == NULL) {
+			newly_freed_node->bwd = NULL;
+			newly_freed_node->fwd = NULL;
+			_free_list = newly_freed_node;
+			return;
+		}
+		
+		//First node
+		if(newly_freed_node < _free_list) {
+			newly_freed_node->fwd = _free_list;
+			_free_list->bwd = newly_freed_node;
+			_free_list = newly_freed_node;
+		}
+		
+		//Navigate list
+		while(curr->fwd != NULL && curr->fwd < newly_freed_node) {
+			curr = curr->fwd;
+		}
+
+		newly_freed_node->fwd = curr->fwd;
+		newly_freed_node->bwd = curr;
+
+		if (curr->fwd != NULL) {
+				curr->fwd->bwd = newly_freed_node;
+		}
+	
+		curr->fwd = newly_freed_node;
+	
+		return;
+	}
+	
+	if(_free_list_order == ADD_TO_FRONT) {
+		newly_freed_node->bwd = NULL;
+
+		if (_free_list == NULL) {
+        newly_freed_node->fwd = NULL;
+        _free_list = newly_freed_node;
+        return;
+    }
+		
+		newly_freed_node->fwd = _free_list;
+		_free_list->bwd = newly_freed_node;
+		_free_list = newly_freed_node;
+	
+		return;
+	}
+	
+	if(_free_list_order == ADD_TO_BACK) {
+		newly_freed_node->fwd = NULL;
+
+		if (_free_list == NULL) {
+        newly_freed_node->bwd = NULL;
+        _free_list = newly_freed_node;
+        return;
+    }
+
+		while(curr->fwd != NULL) {
+			curr = curr->fwd;
+		}
+
+		curr->fwd = newly_freed_node;
+		newly_freed_node->bwd = curr;
+	
+		return;
+	}
+
 }
 
 void coalesce_free_chunks(node_t* node) {

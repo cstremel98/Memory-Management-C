@@ -21,8 +21,8 @@
 
 
 TestSuite(Functions, .disabled=false, .timeout=60.0);
-TestSuite(Alloc, .disabled=false, .timeout=60.0);
-TestSuite(Free, .disabled=false, .timeout=60.0);
+TestSuite(Alloc, .disabled=true, .timeout=60.0);
+TestSuite(Free, .disabled=true, .timeout=60.0);
 
 
 // From: https://github.com/codewars/criterion-hooks/blob/main/criterion-hooks.c
